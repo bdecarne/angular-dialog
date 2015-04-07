@@ -1,0 +1,4 @@
+.idea
+app/built
+node_modules
+dist
