@@ -2,7 +2,9 @@ angular.module('angular.dialog')
     .factory('$dialogStack', ['$animate', '$timeout', '$document', '$compile', '$rootScope', '$$stackedMap',
         function ($animate, $timeout, $document, $compile, $rootScope, $$stackedMap) {
 
-            var OPENED_MODAL_CLASS = 'modal-open';
+            var OPENED_DIALOG_CLASS = 'dialog-open';
+            var stackDomEl, stackScope;
+
 
             var backdropDomEl, backdropScope;
             var openedWindows = $$stackedMap.createNew();
@@ -35,7 +37,7 @@ angular.module('angular.dialog')
 
                 //remove window DOM element
                 removeAfterAnimate(modalWindow.modalDomEl, modalWindow.modalScope, function() {
-                    body.toggleClass(OPENED_MODAL_CLASS, openedWindows.length() > 0);
+                    body.toggleClass(OPENED_DIALOG_CLASS, openedWindows.length() > 0);
                     checkRemoveBackdrop();
                 });
             }
@@ -104,20 +106,16 @@ angular.module('angular.dialog')
                     keyboard: modal.keyboard
                 });
 
-                var body = $document.find('body').eq(0),
-                    currBackdropIndex = backdropIndex();
+                var body = $document.find('body').eq(0);
+                currBackdropIndex = backdropIndex();
 
-                //if (currBackdropIndex >= 0 && !backdropDomEl) {
-                //    backdropScope = $rootScope.$new(true);
-                //    backdropScope.index = currBackdropIndex;
-                //    var angularBackgroundDomEl = angular.element('<div modal-backdrop="modal-backdrop"></div>');
-                //    angularBackgroundDomEl.attr('backdrop-class', modal.backdropClass);
-                //    if (modal.animation) {
-                //        angularBackgroundDomEl.attr('modal-animation', 'true');
-                //    }
-                //    backdropDomEl = $compile(angularBackgroundDomEl)(backdropScope);
-                //    body.append(backdropDomEl);
-                //}
+                if (!stackDomEl) {
+                    stackScope = $rootScope.$new(true);
+                    var stackElement = angular.element('<div dialog-stack="dialog-stack"></div>');
+                    stackElement.attr('stack-class', modal.stackClass);
+                    stackDomEl = $compile(stackElement)(stackScope);
+                    body.append(stackDomEl);
+                }
 
                 var angularDomEl = angular.element('<div dialog-window="dialog-window"></div>');
                 angularDomEl.attr({
@@ -133,8 +131,10 @@ angular.module('angular.dialog')
 
                 var modalDomEl = $compile(angularDomEl)(modal.scope);
                 openedWindows.top().value.modalDomEl = modalDomEl;
-                body.append(modalDomEl);
-                body.addClass(OPENED_MODAL_CLASS);
+                $timeout(function() {
+                    stackDomEl.append(modalDomEl);
+                    body.addClass(OPENED_DIALOG_CLASS);
+                });
             };
 
             function broadcastClosing(modalWindow, resultOrReason, closing) {

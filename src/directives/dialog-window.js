@@ -12,7 +12,6 @@ angular.module('angular.dialog')
                 return tAttrs.templateUrl || 'templates/dialog/window.html';
             },
             link: function (scope, element, attrs) {
-                console.log( "dsfsdf");
                 element.addClass(attrs.windowClass || '');
                 scope.size = attrs.size;
 

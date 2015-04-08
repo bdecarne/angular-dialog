@@ -1,5 +1,5 @@
 angular.module('angular.dialog')
-    .directive('modalTransclude', function () {
+    .directive('dialogTransclude', function () {
         return {
             link: function($scope, $element, $attrs, controller, $transclude) {
                 $transclude($scope.$parent, function(clone) {
